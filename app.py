@@ -11,7 +11,9 @@ st.set_page_config(page_title="Insurance Premium Predictor")
 st.title("🏥 Insurance Premium Prediction App")
 st.write("Enter details to predict insurance premium")
 
-# ---------------- INPUTS ---------------- #
+# ---------------- PERSONAL DETAILS ---------------- #
+
+st.header("👤 Personal Details")
 
 age = st.number_input("Age", 18, 100, 30)
 
@@ -21,17 +23,21 @@ marital_status = st.selectbox("Marital Status", ["Unmarried", "Married"])
 
 dependants = st.slider("Dependants", 0, 5, 0)
 
-income = st.number_input("Income (Lakhs)", min_value=1.0, value=10.0)
+# ---------------- FINANCIAL DETAILS ---------------- #
+
+st.header("💼 Financial Details")
+
+income = st.number_input("Income (Lakhs per Year)", min_value=1.0, value=10.0)
+
+employment = st.selectbox("Employment Status", ["Salaried", "Self-Employed", "Freelancer"])
+
+# ---------------- HEALTH DETAILS ---------------- #
+
+st.header("🏥 Health & Lifestyle")
 
 bmi = st.selectbox("BMI Category", ["Underweight", "Normal", "Overweight", "Obesity"])
 
 smoking = st.selectbox("Smoking Status", ["No Smoking", "Occasional", "Regular"])
-
-plan = st.selectbox("Insurance Plan", ["Bronze", "Silver", "Gold"])
-
-region = st.selectbox("Region", ["Northeast", "Northwest", "Southeast", "Southwest"])
-
-employment = st.selectbox("Employment Status", ["Salaried", "Self-Employed", "Freelancer"])
 
 physical_activity = st.selectbox("Physical Activity", ["High", "Medium", "Low"])
 
@@ -44,6 +50,14 @@ diabetes = st.checkbox("Diabetes")
 high_bp = st.checkbox("High Blood Pressure")
 heart_disease = st.checkbox("Heart Disease")
 thyroid = st.checkbox("Thyroid")
+
+# ---------------- POLICY DETAILS ---------------- #
+
+st.header("📄 Policy Details")
+
+plan = st.selectbox("Insurance Plan", ["Bronze", "Silver", "Gold"])
+
+region = st.selectbox("Region", ["Northeast", "Northwest", "Southeast", "Southwest"])
 
 # ---------------- FEATURE ENGINEERING ---------------- #
 
@@ -85,7 +99,7 @@ region_southwest = 1 if region == "Southwest" else 0
 employment_salaried = 1 if employment == "Salaried" else 0
 employment_self = 1 if employment == "Self-Employed" else 0
 
-# ---------------- CREATE INPUT DICT ---------------- #
+# ---------------- CREATE INPUT ---------------- #
 
 input_dict = {
     'age': age,
@@ -109,11 +123,20 @@ input_dict = {
     'disease_count': disease_count
 }
 
-# Ensure correct feature order
 input_data = np.array([input_dict[feature] for feature in features]).reshape(1, -1)
 
 # ---------------- PREDICTION ---------------- #
 
 if st.button("Predict Premium"):
+
+    # Basic validation
+    if income < 2:
+        st.warning("⚠️ Very low income may reduce prediction accuracy")
+
     prediction = model.predict(input_data)[0]
-    st.success(f"💰 Predicted Annual Premium: ₹ {round(prediction, 2)}")
+
+    st.success(f"💰 Predicted Annual Premium: ₹ {prediction:.2f}")
+
+    # Explanation (nice touch)
+    st.info(f"📊 Lifestyle Risk Score: {life_style_risk_score}")
+    st.info(f"🏥 Disease Count: {disease_count}")
